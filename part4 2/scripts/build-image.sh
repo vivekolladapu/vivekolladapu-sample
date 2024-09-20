@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Exit if any variable is unset
-set -u  # or set -o nounset
+set -u
 
 # Ensure required environment variables are set
 : "$CONTAINER_REGISTRY"
@@ -9,8 +9,11 @@ set -u  # or set -o nounset
 : "$NAME"
 : "$DIRECTORY"
 
-# Print debug information (optional)
-echo "Building Docker image for $CONTAINER_REGISTRY/$NAME:$VERSION from directory $DIRECTORY"
+# Debug print
+echo "Container registry: '$CONTAINER_REGISTRY'"
+echo "Name: '$NAME'"
+echo "Version: '$VERSION'"
+echo "Directory: '$DIRECTORY'"
 
 # Build the Docker image
 docker build -t "$CONTAINER_REGISTRY/$NAME:$VERSION" --file "./$DIRECTORY/Dockerfile" "./$DIRECTORY"
