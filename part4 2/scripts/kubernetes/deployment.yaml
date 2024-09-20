@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: book-catalog
-        image: sit722taskweek7.azurecr.io/book_catalog:v1
+        image: ${CONTAINER_REGISTRY}/inventory_management:${VERSION}
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
@@ -54,7 +54,7 @@ spec:
     spec:
       containers: 
       - name: inventory-management
-        image: sit722taskweek7.azurecr.io/inventory_management:v1
+        image: ${CONTAINER_REGISTRY}/inventory_management:${VERSION}
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8001
