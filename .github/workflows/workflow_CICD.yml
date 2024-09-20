@@ -8,7 +8,7 @@ on:
       - book_catalog/**
       - inventory_management/**
       - scripts/terraform/**
-  workflow_dispatch: # Allows triggering manually
+  workflow_dispatch:  # Allows triggering manually
     inputs:
       version:
         description: 'Enter the version to tag the Docker image'
@@ -20,6 +20,12 @@ jobs:
   terraform:
     name: Deploy Infrastructure
     runs-on: ubuntu-latest
+
+    outputs:
+      acr_login_url: ${{ steps.get_outputs.outputs.acr_login_url }}
+      acr_username: ${{ steps.get_outputs.outputs.acr_username }}
+      acr_password: ${{ steps.get_outputs.outputs.acr_password }}
+      aks_kubeconfig: ${{ steps.get_outputs.outputs.aks_kubeconfig }}
 
     steps:
       # Checkout code
@@ -49,34 +55,14 @@ jobs:
 
       # Capture Terraform outputs and set them as environment variables
       - name: Get Terraform Outputs
-        id: terraform_outputs
+        id: get_outputs
         run: |
-          acr_login_url=$(terraform output -raw container_registry | tr -d '\r\n')
-          echo "acr_login_url=$acr_login_url" >> $GITHUB_ENV
-          acr_username=$(terraform output -raw registry_username | tr -d '\r\n')
-          echo "acr_username=$acr_username" >> $GITHUB_ENV
-          acr_password=$(terraform output -raw registry_password | tr -d '\r\n')
-          echo "acr_password=$acr_password" >> $GITHUB_ENV
-          aks_kubeconfig=$(terraform output -raw kube_config | tr -d '\r\n')
-          echo "aks_kubeconfig=$aks_kubeconfig" >> $GITHUB_ENV
+          echo "::set-output name=acr_login_url::$(terraform output -raw container_registry | tr -d '\r\n')"
+          echo "::set-output name=acr_username::$(terraform output -raw registry_username | tr -d '\r\n')"
+          echo "::set-output name=acr_password::$(terraform output -raw registry_password | tr -d '\r\n')"
+          echo "::set-output name=aks_kubeconfig::$(terraform output -raw kube_config | tr -d '\r\n')"
         working-directory: "part4 2/scripts/terraform"
 
-      # Install GitHub CLI
-      - name: Install GitHub CLI
-        run: sudo apt-get install gh
-
-      # Authenticate GitHub CLI
-      - name: Authenticate GitHub CLI
-        run: |
-          echo "${{ secrets.SECRETS_MODIFY_TOKEN }}" | gh auth login --with-token
-      # Create or update GitHub secrets
-      - name: Create GitHub Secrets
-        run: |
-          echo "Creating or updating secrets in GitHub repository"
-          gh secret set CONTAINER_REGISTRY -b "${{ env.acr_login_url }}"
-          gh secret set REGISTRY_UN -b "${{ env.acr_username }}"
-          gh secret set REGISTRY_PW -b "${{ env.acr_password }}"
-          gh secret set KUBE_CONFIG -b "${{ env.aks_kubeconfig }}"
   # Job 2: Deploy Book Catalog Microservice
   deploy_book_catalog:
     name: Deploy book_catalog
@@ -85,10 +71,10 @@ jobs:
 
     env:
       VERSION: ${{ github.event.inputs.version }}  # Use version input provided during manual dispatch
-      CONTAINER_REGISTRY: ${{ secrets.CONTAINER_REGISTRY }}
-      REGISTRY_UN: ${{ secrets.REGISTRY_UN }}
-      REGISTRY_PW: ${{ secrets.REGISTRY_PW }}
-      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+      CONTAINER_REGISTRY: ${{ needs.terraform.outputs.acr_login_url }}
+      REGISTRY_UN: ${{ needs.terraform.outputs.acr_username }}
+      REGISTRY_PW: ${{ needs.terraform.outputs.acr_password }}
+      KUBE_CONFIG: ${{ needs.terraform.outputs.aks_kubeconfig }}
       NAME: book_catalog
       DIRECTORY: book_catalog
 
@@ -99,16 +85,17 @@ jobs:
       # Set executable permissions for all scripts
       - name: Set permissions for build, push, deploy scripts
         run: |
-          chmod +x part4\ 2/scripts/build-image.sh
-          chmod +x part4\ 2/scripts/push-image.sh
-          chmod +x part4\ 2/scripts/deploy.sh
+          chmod +x part4/2/scripts/build-image.sh
+          chmod +x part4/2/scripts/push-image.sh
+          chmod +x part4/2/scripts/deploy.sh
+
       # Build the Docker image
       - name: Build Docker image
-        run: part4\ 2/scripts/build-image.sh ${{ env.VERSION }}  # Pass the version to the script
+        run: part4/2/scripts/build-image.sh ${{ env.VERSION }}  # Pass the version to the script
 
       # Push the Docker image to the container registry
       - name: Publish Docker image
-        run: part4\ 2/scripts/push-image.sh ${{ env.VERSION }}  # Pass the version to the script
+        run: part4/2/scripts/push-image.sh ${{ env.VERSION }}  # Pass the version to the script
 
   # Job 3: Deploy Inventory Management Microservice
   deploy_inventory_management:
@@ -118,10 +105,10 @@ jobs:
 
     env:
       VERSION: ${{ github.event.inputs.version }}  # Use version input provided during manual dispatch
-      CONTAINER_REGISTRY: ${{ secrets.CONTAINER_REGISTRY }}
-      REGISTRY_UN: ${{ secrets.REGISTRY_UN }}
-      REGISTRY_PW: ${{ secrets.REGISTRY_PW }}
-      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+      CONTAINER_REGISTRY: ${{ needs.terraform.outputs.acr_login_url }}
+      REGISTRY_UN: ${{ needs.terraform.outputs.acr_username }}
+      REGISTRY_PW: ${{ needs.terraform.outputs.acr_password }}
+      KUBE_CONFIG: ${{ needs.terraform.outputs.aks_kubeconfig }}
       NAME: inventory_management
       DIRECTORY: inventory_management
 
@@ -132,23 +119,24 @@ jobs:
       # Set executable permissions for all scripts
       - name: Set permissions for build, push, deploy scripts
         run: |
-          chmod +x part4\ 2/scripts/build-image.sh
-          chmod +x part4\ 2/scripts/push-image.sh
-          chmod +x part4\ 2/scripts/deploy.sh
+          chmod +x part4/2/scripts/build-image.sh
+          chmod +x part4/2/scripts/push-image.sh
+          chmod +x part4/2/scripts/deploy.sh
+
       # Build the Docker image
       - name: Build Docker image
-        run: part4\ 2/scripts/build-image.sh ${{ env.VERSION }}  # Pass the version to the script
+        run: part4/2/scripts/build-image.sh ${{ env.VERSION }}  # Pass the version to the script
 
       # Push the Docker image to the container registry
       - name: Publish Docker image
-        run: part4\ 2/scripts/push-image.sh ${{ env.VERSION }}  # Pass the version to the script
+        run: part4/2/scripts/push-image.sh ${{ env.VERSION }}  # Pass the version to the script
 
       # Install Kubectl and deploy to Kubernetes
       - uses: tale/kubectl-action@v1
         with:
-          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+          base64-kube-config: ${{ env.KUBE_CONFIG }}
           kubectl-version: v1.24.2
 
       # Deploy to Kubernetes
       - name: Deploy to Kubernetes
-        run: part4\ 2/scripts/kubernetes/deploy.sh
+        run: part4/2/scripts/kubernetes/deploy.sh
