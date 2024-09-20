@@ -21,7 +21,7 @@ variable "kubernetes_version" {
 }
 
 # Creates a resource group for our two services in Azure account.
-resource "azurerm_resource_group" "bmok1" {
+resource "azurerm_resource_group" "deakinuni" {
   name     = var.app_name
   location = var.location
 }
