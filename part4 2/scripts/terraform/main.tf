@@ -22,7 +22,7 @@ variable "kubernetes_version" {
 
 # Creates a resource group for our two services in Azure account.
 resource "azurerm_resource_group" "vivek2" {
-  name     = "vivek1"
+  name     = "vivek2"
   location = "australiasoutheast"
 }
 
