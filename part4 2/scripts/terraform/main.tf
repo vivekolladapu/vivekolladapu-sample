@@ -22,8 +22,8 @@ variable "kubernetes_version" {
 
 # Creates a resource group for our two services in Azure account.
 resource "azurerm_resource_group" "vivek" {
-  name     = var.app_name
-  location = var.location
+  name     = "vivek"
+  location = "australiasoutheast"
 }
 
 # Creates a managed Kubernetes cluster on Azure.
