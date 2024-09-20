@@ -85,17 +85,17 @@ jobs:
       # Set executable permissions for all scripts
       - name: Set permissions for build, push, deploy scripts
         run: |
-          chmod +x part4/2/scripts/build-image.sh
-          chmod +x part4/2/scripts/push-image.sh
-          chmod +x part4/2/scripts/deploy.sh
+          chmod +x part4\ 2/scripts/build-image.sh
+          chmod +x part4\ 2/scripts/push-image.sh
+          chmod +x part4\ 2/scripts/deploy.sh
 
       # Build the Docker image
       - name: Build Docker image
-        run: part4/2/scripts/build-image.sh ${{ env.VERSION }}  # Pass the version to the script
+        run: part4\ 2/scripts/build-image.sh ${{ env.VERSION }}  # Pass the version to the script
 
       # Push the Docker image to the container registry
       - name: Publish Docker image
-        run: part4/2/scripts/push-image.sh ${{ env.VERSION }}  # Pass the version to the script
+        run: part4\ 2/scripts/push-image.sh ${{ env.VERSION }}  # Pass the version to the script
 
   # Job 3: Deploy Inventory Management Microservice
   deploy_inventory_management:
@@ -119,17 +119,17 @@ jobs:
       # Set executable permissions for all scripts
       - name: Set permissions for build, push, deploy scripts
         run: |
-          chmod +x part4/2/scripts/build-image.sh
-          chmod +x part4/2/scripts/push-image.sh
-          chmod +x part4/2/scripts/deploy.sh
+          chmod +x part4\ 2/scripts/build-image.sh
+          chmod +x part4\ 2/scripts/push-image.sh
+          chmod +x part4\ 2/scripts/deploy.sh
 
       # Build the Docker image
       - name: Build Docker image
-        run: part4/2/scripts/build-image.sh ${{ env.VERSION }}  # Pass the version to the script
+        run: part4\ 2/scripts/build-image.sh ${{ env.VERSION }}  # Pass the version to the script
 
       # Push the Docker image to the container registry
       - name: Publish Docker image
-        run: part4/2/scripts/push-image.sh ${{ env.VERSION }}  # Pass the version to the script
+        run: part4\ 2/scripts/push-image.sh ${{ env.VERSION }}  # Pass the version to the script
 
       # Install Kubectl and deploy to Kubernetes
       - uses: tale/kubectl-action@v1
@@ -139,4 +139,4 @@ jobs:
 
       # Deploy to Kubernetes
       - name: Deploy to Kubernetes
-        run: part4/2/scripts/kubernetes/deploy.sh
+        run: part4\ 2/scripts/kubernetes/deploy.sh
