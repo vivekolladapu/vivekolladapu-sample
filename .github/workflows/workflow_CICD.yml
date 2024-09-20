@@ -36,17 +36,17 @@ jobs:
       # Initialize Terraform
       - name: Terraform Init
         run: terraform init
-        working-directory: scripts/terraform
+        working-directory: "part4 2/scripts/terraform"
 
       # Terraform Plan
       - name: Terraform Plan
         run: terraform plan -var="app_name=${{ secrets.APP_NAME }}" -var="kubernetes_version=${{ secrets.KUBERNETES_VERSION }}" -var="subscription_id=${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}" -var="client_id=${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}" -var="client_secret=${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}" -var="tenant_id=${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
-        working-directory: scripts/terraform
+        working-directory: "part4 2/scripts/terraform"
 
       # Terraform Apply
       - name: Terraform Apply
         run: terraform apply -auto-approve -var="app_name=${{ secrets.APP_NAME }}" -var="kubernetes_version=${{ secrets.KUBERNETES_VERSION }}" -var="subscription_id=${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}" -var="client_id=${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}" -var="client_secret=${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}" -var="tenant_id=${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
-        working-directory: scripts/terraform
+        working-directory: "part4 2/scripts/terraform"
 
       # Capture Terraform outputs and set them as environment variables
       - name: Get Terraform Outputs
@@ -56,7 +56,7 @@ jobs:
           echo "acr_username=$(terraform output -raw registry_username)" >> $GITHUB_ENV
           echo "acr_password=$(terraform output -raw registry_password)" >> $GITHUB_ENV
           echo "aks_kubeconfig=$(terraform output -raw kube_config)" >> $GITHUB_ENV
-        working-directory: scripts/terraform
+        working-directory: "part4 2/scripts/terraform"
 
       # Install GitHub CLI
       - name: Install GitHub CLI
