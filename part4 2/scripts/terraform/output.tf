@@ -20,6 +20,6 @@ output "registry_password" {
 # Output for Kubernetes cluster kubeconfig (base64-encoded)
 output "kube_config" {
   description = "Base64 encoded kubeconfig for the AKS cluster"
-  value       = base64encode(azurerm_kubernetes_cluster.container_registry.kube_config_raw)
+  value       = base64encode(azurerm_kubernetes_cluster.cluster.kube_config_raw)  # Corrected reference
   sensitive   = true  # Sensitive to ensure it's handled securely
 }
