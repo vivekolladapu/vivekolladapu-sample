@@ -104,9 +104,9 @@ jobs:
       # Set executable permissions for all scripts
       - name: Set permissions for build, push, deploy scripts
         run: |
-          chmod +x ./scripts/build-image.sh
-          chmod +x ./scripts/push-image.sh
-          chmod +x ./scripts/deploy.sh
+          chmod +x part4\ 2/scripts/build-image.sh
+          chmod +x part4\ 2/scripts/push-image.sh
+          chmod +x part4\ 2/scripts/deploy.sh
 
       # Build the Docker image
       - name: Build Docker image
@@ -138,9 +138,9 @@ jobs:
       # Set executable permissions for all scripts
       - name: Set permissions for build, push, deploy scripts
         run: |
-          chmod +x ./scripts/build-image.sh
-          chmod +x ./scripts/push-image.sh
-          chmod +x ./scripts/deploy.sh
+          chmod +x part4\ 2/scripts/build-image.sh
+          chmod +x part4\ 2/scripts/push-image.sh
+          chmod +x part4\ 2/scripts/deploy.sh
 
       # Build the Docker image
       - name: Build Docker image
