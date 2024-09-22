@@ -57,10 +57,10 @@ jobs:
       - name: Get Terraform Outputs
         id: get_outputs
         run: |
-          echo "::set-output name=acr_login_url::$(terraform output -raw container_registry | tr -d '\r\n')"
-          echo "::set-output name=acr_username::$(terraform output -raw registry_username | tr -d '\r\n')"
-          echo "::set-output name=acr_password::$(terraform output -raw registry_password | tr -d '\r\n')"
-          echo "::set-output name=aks_kubeconfig::$(terraform output -raw kube_config | tr -d '\r\n')"
+          echo "ACR_LOGIN_URL=$(terraform output -raw container_registry | tr -d '\r\n')" >> $GITHUB_ENV
+          echo "ACR_USERNAME=$(terraform output -raw registry_username | tr -d '\r\n')" >> $GITHUB_ENV
+          echo "ACR_PASSWORD=$(terraform output -raw registry_password | tr -d '\r\n')" >> $GITHUB_ENV
+          echo "AKS_KUBECONFIG=$(terraform output -raw kube_config | tr -d '\r\n')" >> $GITHUB_ENV
         working-directory: "part4 2/scripts/terraform"
 
   # Job 2: Deploy Book Catalog Microservice
@@ -71,10 +71,10 @@ jobs:
 
     env:
       VERSION: ${{ github.event.inputs.version }}  # Use version input provided during manual dispatch
-      CONTAINER_REGISTRY: ${{ needs.terraform.outputs.acr_login_url }}
-      REGISTRY_UN: ${{ needs.terraform.outputs.acr_username }}
-      REGISTRY_PW: ${{ needs.terraform.outputs.acr_password }}
-      KUBE_CONFIG: ${{ needs.terraform.outputs.aks_kubeconfig }}
+      CONTAINER_REGISTRY: ${{ env.ACR_LOGIN_URL }}
+      REGISTRY_UN: ${{ env.ACR_USERNAME }}
+      REGISTRY_PW: ${{ env.ACR_PASSWORD }}
+      KUBE_CONFIG: ${{ env.AKS_KUBECONFIG }}
       NAME: book_catalog
       DIRECTORY: book_catalog
 
@@ -105,10 +105,10 @@ jobs:
 
     env:
       VERSION: ${{ github.event.inputs.version }}  # Use version input provided during manual dispatch
-      CONTAINER_REGISTRY: ${{ needs.terraform.outputs.acr_login_url }}
-      REGISTRY_UN: ${{ needs.terraform.outputs.acr_username }}
-      REGISTRY_PW: ${{ needs.terraform.outputs.acr_password }}
-      KUBE_CONFIG: ${{ needs.terraform.outputs.aks_kubeconfig }}
+      CONTAINER_REGISTRY: ${{ env.ACR_LOGIN_URL }}
+      REGISTRY_UN: ${{ env.ACR_USERNAME }}
+      REGISTRY_PW: ${{ env.ACR_PASSWORD }}
+      KUBE_CONFIG: ${{ env.AKS_KUBECONFIG }}
       NAME: inventory_management
       DIRECTORY: inventory_management
 
