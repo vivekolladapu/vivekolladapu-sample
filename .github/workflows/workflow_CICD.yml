@@ -34,23 +34,23 @@ jobs:
 
       # Terraform Init
       - name: Terraform Init
-        working-directory: "part4\ 2/scripts/terraform"
+        working-directory: "./part4 2/scripts/terraform"
         run: terraform init -upgrade
 
-      # # Terraform Plan
-      # - name: Terraform Plan
-      #   working-directory: "part4\ 2/scripts/terraform"
-      #   run: terraform plan
+      # Terraform Plan
+      - name: Terraform Plan
+        working-directory: "./part4 2/scripts/terraform"
+        run: terraform plan -var="app_name=${{ secrets.APP_NAME }}" -var="kubernetes_version=${{ secrets.KUBERNETES_VERSION }}" -var="subscription_id=${{ secrets.ARM_SUBSCRIPTION_ID }}" -var="client_id=${{ secrets.ARM_CLIENT_ID }}" -var="client_secret=${{ secrets.ARM_CLIENT_SECRET }}" -var="tenant_id=${{ secrets.ARM_TENANT_ID }}"
 
       # Terraform Apply
       - name: Terraform Apply
-        working-directory: "part4\ 2/scripts/terraform"
-        run: terraform apply -auto-approve
+        working-directory: "./part4 2/scripts/terraform"
+        run: terraform apply -auto-approve -var="app_name=${{ secrets.APP_NAME }}" -var="kubernetes_version=${{ secrets.KUBERNETES_VERSION }}" -var="subscription_id=${{ secrets.ARM_SUBSCRIPTION_ID }}" -var="client_id=${{ secrets.ARM_CLIENT_ID }}" -var="client_secret=${{ secrets.ARM_CLIENT_SECRET }}" -var="tenant_id=${{ secrets.ARM_TENANT_ID }}"
 
       # Capture Terraform outputs and set them as environment variables
       - name: Get Terraform Outputs
         id: get_outputs
-        working-directory: "part4\ 2/scripts/terraform"
+        working-directory: "./part4 2/scripts/terraform"
         run: |
           echo "acr_login_url=$(terraform output -raw container_registry)" >> $GITHUB_ENV
           echo "acr_username=$(terraform output -raw registry_username)" >> $GITHUB_ENV
@@ -97,17 +97,17 @@ jobs:
       # Set executable permissions for all scripts
       - name: Set permissions for build, push, deploy scripts
         run: |
-          chmod +x part4\ 2/scripts/build-image.sh
-          chmod +x part4\ 2/scripts/push-image.sh
-          chmod +x part4\ 2/scripts/deploy.sh
+          chmod +x "part4 2/scripts/build-image.sh"
+          chmod +x "part4 2/scripts/push-image.sh"
+          chmod +x "part4 2/scripts/deploy.sh"
 
       # Build the Docker image
       - name: Build Docker image
-        run: part4\ 2/scripts/build-image.sh ${{ env.VERSION }}  # Pass the version to the script
+        run: "part4 2/scripts/build-image.sh ${{ env.VERSION }}"  # Pass the version to the script
 
       # Push the Docker image to the container registry
       - name: Publish Docker image
-        run: part4\ 2/scripts/push-image.sh ${{ env.VERSION }}  # Pass the version to the script
+        run: "part4 2/scripts/push-image.sh ${{ env.VERSION }}"  # Pass the version to the script
 
   # Job 3: Deploy Inventory Management Microservice
   deploy_inventory_management:
@@ -131,17 +131,17 @@ jobs:
       # Set executable permissions for all scripts
       - name: Set permissions for build, push, deploy scripts
         run: |
-          chmod +x part4\ 2/scripts/build-image.sh
-          chmod +x part4\ 2/scripts/push-image.sh
-          chmod +x part4\ 2/scripts/deploy.sh
+          chmod +x "part4 2/scripts/build-image.sh"
+          chmod +x "part4 2/scripts/push-image.sh"
+          chmod +x "part4 2/scripts/deploy.sh"
 
       # Build the Docker image
       - name: Build Docker image
-        run: part4\ 2/scripts/build-image.sh ${{ env.VERSION }}  # Pass the version to the script
+        run: "part4 2/scripts/build-image.sh ${{ env.VERSION }}"  # Pass the version to the script
 
       # Push the Docker image to the container registry
       - name: Publish Docker image
-        run: part4\ 2/scripts/push-image.sh ${{ env.VERSION }}  # Pass the version to the script
+        run: "part4 2/scripts/push-image.sh ${{ env.VERSION }}"  # Pass the version to the script
 
       # Install Kubectl and deploy to Kubernetes
       - uses: tale/kubectl-action@v1
@@ -151,4 +151,4 @@ jobs:
 
       # Deploy to Kubernetes
       - name: Deploy to Kubernetes
-        run: part4\ 2/scripts/kubernetes/deploy.sh
+        run: "part4 2/scripts/kubernetes/deploy.sh"
