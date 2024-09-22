@@ -50,18 +50,25 @@ jobs:
 
       # Capture Terraform outputs and set them as environment variables
       # Capture Terraform outputs and set them as environment variables
+      # Capture Terraform outputs and set them as environment variables
       - name: Get Terraform Outputs
         id: terraform_outputs
         run: |
-          # Capture the Terraform output values
-          acr_login_url=$(terraform output -raw container_registry | tr -d '\r')
-          acr_username=$(terraform output -raw registry_username | tr -d '\r')
-          acr_password=$(terraform output -raw registry_password | tr -d '\r')
-          aks_kubeconfig=$(terraform output -raw kube_config | tr -d '\r')
+          # Execute terraform output commands and store them in variables
+          acr_login_url=$(terraform output -raw container_registry 2>/dev/null | tr -d '\r')
+          acr_username=$(terraform output -raw registry_username 2>/dev/null | tr -d '\r')
+          acr_password=$(terraform output -raw registry_password 2>/dev/null | tr -d '\r')
+          aks_kubeconfig=$(terraform output -raw kube_config 2>/dev/null | tr -d '\r')
       
           # Echo values to confirm
           echo "ACR Login URL: $acr_login_url"
           echo "Registry Username: $acr_username"
+      
+          # Check if values are not empty
+          if [ -z "$acr_login_url" ] || [ -z "$acr_username" ] || [ -z "$acr_password" ] || [ -z "$aks_kubeconfig" ]; then
+            echo "Error: One or more Terraform outputs are empty. Please check the Terraform output configuration."
+            exit 1
+          fi
       
           # Set environment variables
           echo "acr_login_url=$acr_login_url" >> $GITHUB_ENV
@@ -69,6 +76,7 @@ jobs:
           echo "acr_password=$acr_password" >> $GITHUB_ENV
           echo "aks_kubeconfig=$aks_kubeconfig" >> $GITHUB_ENV
         working-directory: "part4 2/scripts/terraform"
+
 
 
       # Install GitHub CLI
