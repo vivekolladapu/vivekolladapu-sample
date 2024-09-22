@@ -49,14 +49,27 @@ jobs:
         working-directory: "part4 2/scripts/terraform"
 
       # Capture Terraform outputs and set them as environment variables
+      # Capture Terraform outputs and set them as environment variables
       - name: Get Terraform Outputs
         id: terraform_outputs
         run: |
-          echo "acr_login_url=$(terraform output -raw container_registry)" >> $GITHUB_ENV
-          echo "acr_username=$(terraform output -raw registry_username)" >> $GITHUB_ENV
-          echo "acr_password=$(terraform output -raw registry_password)" >> $GITHUB_ENV
-          echo "aks_kubeconfig=$(terraform output -raw kube_config)" >> $GITHUB_ENV
+          # Capture the Terraform output values
+          acr_login_url=$(terraform output -raw container_registry | tr -d '\r')
+          acr_username=$(terraform output -raw registry_username | tr -d '\r')
+          acr_password=$(terraform output -raw registry_password | tr -d '\r')
+          aks_kubeconfig=$(terraform output -raw kube_config | tr -d '\r')
+      
+          # Echo values to confirm
+          echo "ACR Login URL: $acr_login_url"
+          echo "Registry Username: $acr_username"
+      
+          # Set environment variables
+          echo "acr_login_url=$acr_login_url" >> $GITHUB_ENV
+          echo "acr_username=$acr_username" >> $GITHUB_ENV
+          echo "acr_password=$acr_password" >> $GITHUB_ENV
+          echo "aks_kubeconfig=$aks_kubeconfig" >> $GITHUB_ENV
         working-directory: "part4 2/scripts/terraform"
+
 
       # Install GitHub CLI
       - name: Install GitHub CLI
