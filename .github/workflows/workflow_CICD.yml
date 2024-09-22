@@ -37,10 +37,10 @@ jobs:
         working-directory: "part4\ 2/scripts/terraform"
         run: terraform init -upgrade
 
-      # Terraform Plan
-      - name: Terraform Plan
-        working-directory: "part4\ 2/scripts/terraform"
-        run: terraform plan
+      # # Terraform Plan
+      # - name: Terraform Plan
+      #   working-directory: "part4\ 2/scripts/terraform"
+      #   run: terraform plan
 
       # Terraform Apply
       - name: Terraform Apply
