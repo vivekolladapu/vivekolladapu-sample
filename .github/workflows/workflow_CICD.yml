@@ -1,67 +1,79 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline with Terraform and GitHub Secrets
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - book_catalog/**
-      - inventory_management/**
-      - scripts/terraform/**
   workflow_dispatch:  # Allows triggering manually
-    inputs:
-      version:
-        description: 'Enter the version to tag the Docker image'
-        required: true
-        default: 'latest'
 
 jobs:
   # Job 1: Terraform Infrastructure Deployment
   terraform:
-    name: Deploy Infrastructure
+    name: Deploy Infrastructure and Update GitHub Secrets
     runs-on: ubuntu-latest
 
-    outputs:
-      acr_login_url: ${{ steps.get_outputs.outputs.acr_login_url }}
-      acr_username: ${{ steps.get_outputs.outputs.acr_username }}
-      acr_password: ${{ steps.get_outputs.outputs.acr_password }}
-      aks_kubeconfig: ${{ steps.get_outputs.outputs.aks_kubeconfig }}
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
     steps:
       # Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Terraform
-      - name: Set up Terraform
+      # Azure Login
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Setup Terraform
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.6
 
-      # Initialize Terraform
+      # Terraform Init
       - name: Terraform Init
-        run: terraform init
-        working-directory: "part4 2/scripts/terraform"
+        working-directory: "part4\ 2/scripts/terraform"
+        run: terraform init -upgrade
 
       # Terraform Plan
       - name: Terraform Plan
-        run: terraform plan -var="app_name=${{ secrets.APP_NAME }}" -var="kubernetes_version=${{ secrets.KUBERNETES_VERSION }}" -var="subscription_id=${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}" -var="client_id=${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}" -var="client_secret=${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}" -var="tenant_id=${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
-        working-directory: "part4 2/scripts/terraform"
+        working-directory: "part4\ 2/scripts/terraform"
+        run: terraform plan
 
       # Terraform Apply
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var="app_name=${{ secrets.APP_NAME }}" -var="kubernetes_version=${{ secrets.KUBERNETES_VERSION }}" -var="subscription_id=${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}" -var="client_id=${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}" -var="client_secret=${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}" -var="tenant_id=${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
-        working-directory: "part4 2/scripts/terraform"
+        working-directory: "part4\ 2/scripts/terraform"
+        run: terraform apply -auto-approve
 
       # Capture Terraform outputs and set them as environment variables
       - name: Get Terraform Outputs
         id: get_outputs
+        working-directory: "part4\ 2/scripts/terraform"
         run: |
-          echo "::set-output name=acr_login_url::$(terraform output -raw container_registry | tr -d '\r\n')"
-          echo "::set-output name=acr_username::$(terraform output -raw registry_username | tr -d '\r\n')"
-          echo "::set-output name=acr_password::$(terraform output -raw registry_password | tr -d '\r\n')"
-          echo "::set-output name=aks_kubeconfig::$(terraform output -raw kube_config | tr -d '\r\n')"
-        working-directory: "part4 2/scripts/terraform"
+          echo "acr_login_url=$(terraform output -raw container_registry)" >> $GITHUB_ENV
+          echo "acr_username=$(terraform output -raw registry_username)" >> $GITHUB_ENV
+          echo "acr_password=$(terraform output -raw registry_password)" >> $GITHUB_ENV
+          echo "aks_kubeconfig=$(terraform output -raw kube_config)" >> $GITHUB_ENV
+
+      # Install GitHub CLI
+      - name: Install GitHub CLI
+        run: sudo apt-get install -y gh
+
+      # Authenticate GitHub CLI
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "${{ secrets.SECRETS_MODIFY_TOKEN }}" | gh auth login --with-token
+
+      # Create or Update GitHub Secrets
+      - name: Create GitHub Secrets
+        run: |
+          echo "Creating or updating secrets in GitHub repository"
+          gh secret set CONTAINER_REGISTRY -b"${{ env.acr_login_url }}"
+          gh secret set REGISTRY_UN -b"${{ env.acr_username }}"
+          gh secret set REGISTRY_PW -b"${{ env.acr_password }}"
+          gh secret set KUBE_CONFIG -b"${{ env.aks_kubeconfig }}"
 
   # Job 2: Deploy Book Catalog Microservice
   deploy_book_catalog:
@@ -71,10 +83,10 @@ jobs:
 
     env:
       VERSION: ${{ github.event.inputs.version }}  # Use version input provided during manual dispatch
-      CONTAINER_REGISTRY: ${{ needs.terraform.outputs.acr_login_url }}
-      REGISTRY_UN: ${{ needs.terraform.outputs.acr_username }}
-      REGISTRY_PW: ${{ needs.terraform.outputs.acr_password }}
-      KUBE_CONFIG: ${{ needs.terraform.outputs.aks_kubeconfig }}
+      CONTAINER_REGISTRY: ${{ secrets.CONTAINER_REGISTRY }}
+      REGISTRY_UN: ${{ secrets.REGISTRY_UN }}
+      REGISTRY_PW: ${{ secrets.REGISTRY_PW }}
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       NAME: book_catalog
       DIRECTORY: book_catalog
 
@@ -88,6 +100,7 @@ jobs:
           chmod +x part4\ 2/scripts/build-image.sh
           chmod +x part4\ 2/scripts/push-image.sh
           chmod +x part4\ 2/scripts/deploy.sh
+
       # Build the Docker image
       - name: Build Docker image
         run: part4\ 2/scripts/build-image.sh ${{ env.VERSION }}  # Pass the version to the script
@@ -104,10 +117,10 @@ jobs:
 
     env:
       VERSION: ${{ github.event.inputs.version }}  # Use version input provided during manual dispatch
-      CONTAINER_REGISTRY: ${{ needs.terraform.outputs.acr_login_url }}
-      REGISTRY_UN: ${{ needs.terraform.outputs.acr_username }}
-      REGISTRY_PW: ${{ needs.terraform.outputs.acr_password }}
-      KUBE_CONFIG: ${{ needs.terraform.outputs.aks_kubeconfig }}
+      CONTAINER_REGISTRY: ${{ secrets.CONTAINER_REGISTRY }}
+      REGISTRY_UN: ${{ secrets.REGISTRY_UN }}
+      REGISTRY_PW: ${{ secrets.REGISTRY_PW }}
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       NAME: inventory_management
       DIRECTORY: inventory_management
 
@@ -121,6 +134,7 @@ jobs:
           chmod +x part4\ 2/scripts/build-image.sh
           chmod +x part4\ 2/scripts/push-image.sh
           chmod +x part4\ 2/scripts/deploy.sh
+
       # Build the Docker image
       - name: Build Docker image
         run: part4\ 2/scripts/build-image.sh ${{ env.VERSION }}  # Pass the version to the script
@@ -132,7 +146,7 @@ jobs:
       # Install Kubectl and deploy to Kubernetes
       - uses: tale/kubectl-action@v1
         with:
-          base64-kube-config: ${{ env.KUBE_CONFIG }}
+          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
           kubectl-version: v1.24.2
 
       # Deploy to Kubernetes
