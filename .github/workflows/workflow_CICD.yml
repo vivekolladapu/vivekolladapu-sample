@@ -49,45 +49,14 @@ jobs:
         working-directory: "part4 2/scripts/terraform"
 
       # Capture Terraform outputs and set them as environment variables
-      # Capture Terraform outputs and set them as environment variables
-      # Capture Terraform outputs and set them as environment variables
-      # Make sure jq is installed before attempting to use it
-      - name: Install jq
-        run: sudo apt-get install -y jq
-      
-      # Capture Terraform outputs and set them as environment variables
       - name: Get Terraform Outputs
         id: terraform_outputs
         run: |
-          # Run terraform output and capture outputs to a file
-          terraform output -json > tf_outputs.json
-          cat tf_outputs.json  # Display the JSON output for debugging
-          
-          # Extract required values using jq
-          acr_login_url=$(jq -r '.container_registry.value' tf_outputs.json)
-          acr_username=$(jq -r '.registry_username.value' tf_outputs.json)
-          acr_password=$(jq -r '.registry_password.value' tf_outputs.json)
-          aks_kubeconfig=$(jq -r '.kube_config.value' tf_outputs.json)
-          
-          # Confirm values are captured correctly
-          echo "ACR Login URL: $acr_login_url"
-          echo "Registry Username: $acr_username"
-      
-          # Check if values are not empty
-          if [ -z "$acr_login_url" ] || [ -z "$acr_username" ] || [ -z "$acr_password" ] || [ -z "$aks_kubeconfig" ]; then
-            echo "Error: One or more Terraform outputs are empty. Please check the Terraform output configuration."
-            exit 1
-          fi
-      
-          # Set environment variables
-          echo "acr_login_url=$acr_login_url" >> $GITHUB_ENV
-          echo "acr_username=$acr_username" >> $GITHUB_ENV
-          echo "acr_password=$acr_password" >> $GITHUB_ENV
-          echo "aks_kubeconfig=$aks_kubeconfig" >> $GITHUB_ENV
+          echo "acr_login_url=$(terraform output -raw container_registry)" >> $GITHUB_ENV
+          echo "acr_username=$(terraform output -raw registry_username)" >> $GITHUB_ENV
+          echo "acr_password=$(terraform output -raw registry_password)" >> $GITHUB_ENV
+          echo "aks_kubeconfig=$(terraform output -raw kube_config)" >> $GITHUB_ENV
         working-directory: "part4 2/scripts/terraform"
-      
-
-
 
       # Install GitHub CLI
       - name: Install GitHub CLI
