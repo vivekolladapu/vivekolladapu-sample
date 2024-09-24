@@ -53,3 +53,10 @@ resource "azurerm_container_registry" "container_registry" {
   admin_enabled       = true
   sku                 = "Basic"
 }
+
+# Grant the Kubernetes cluster access to pull from the Container Registry
+resource "azurerm_role_assignment" "acr_pull" {
+  scope                = azurerm_container_registry.container_registry.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_kubernetes_cluster.cluster.identity[0].principal_id
+}
