@@ -21,8 +21,8 @@ variable "kubernetes_version" {
 }
 
 # Creates a resource group for our two services in Azure account.
-resource "azurerm_resource_group" "vivek16" {
-  name     = "vivek16"
+resource "azurerm_resource_group" "vivek17" {
+  name     = "vivek17"
   location = "australiasoutheast"
 }
 
@@ -30,7 +30,7 @@ resource "azurerm_resource_group" "vivek16" {
 resource "azurerm_kubernetes_cluster" "cluster" {
   name                = var.app_name
   location            = var.location
-  resource_group_name = azurerm_resource_group.vivek16.name
+  resource_group_name = azurerm_resource_group.vivek17.name
   dns_prefix          = var.app_name
   kubernetes_version  = var.kubernetes_version
 
@@ -48,15 +48,10 @@ resource "azurerm_kubernetes_cluster" "cluster" {
 # Creates a container registry on Azure so that we can publish Docker images.
 resource "azurerm_container_registry" "container_registry" {
   name                = var.app_name
-  resource_group_name = azurerm_resource_group.vivek16.name
+  resource_group_name = azurerm_resource_group.vivek17.name
   location            = var.location
   admin_enabled       = true
   sku                 = "Basic"
 }
 
-# Grant the Kubernetes cluster access to pull from the Container Registry
-resource "azurerm_role_assignment" "acr_pull" {
-  scope                = azurerm_container_registry.container_registry.id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_kubernetes_cluster.cluster.identity[0].principal_id
-}
+
