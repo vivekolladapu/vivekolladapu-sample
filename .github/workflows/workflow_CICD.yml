@@ -52,10 +52,10 @@ jobs:
       - name: Get Terraform Outputs
         id: terraform_outputs
         run: |
-          echo "acr_login_url=$(terraform output -raw container_registry)" >> $GITHUB_ENV
-          echo "acr_username=$(terraform output -raw registry_username)" >> $GITHUB_ENV
-          echo "acr_password=$(terraform output -raw registry_password)" >> $GITHUB_ENV
-          echo "aks_kubeconfig=$(terraform output -raw kube_config)" >> $GITHUB_ENV
+          echo "acr_login_url=$(terraform-bin output -raw container_registry)" >> $GITHUB_ENV
+          echo "acr_username=$(terraform-bin output -raw registry_username)" >> $GITHUB_ENV
+          echo "acr_password=$(terraform-bin output -raw registry_password)" >> $GITHUB_ENV
+          echo "aks_kubeconfig=$(terraform-bin output -raw kube_config)" >> $GITHUB_ENV
         working-directory: "part4 2/scripts/terraform"
 
       # Install GitHub CLI
