@@ -26,7 +26,11 @@ jobs:
       # Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
-
+        
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       # Set up Terraform
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
@@ -53,7 +57,7 @@ jobs:
         run: |
           az role assignment create --assignee ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }} \
           --role AcrPush \
-          --scope /subscriptions/${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}/resourceGroups/vivek22/providers/Microsoft.ContainerRegistry/registries/${{ secrets.APP_NAME }}
+          --scope /subscriptions/${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}/resourceGroups/vivek23/providers/Microsoft.ContainerRegistry/registries/${{ secrets.APP_NAME }}
         env:
           AZURE_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
           AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
