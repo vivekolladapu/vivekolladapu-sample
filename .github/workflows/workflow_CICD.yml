@@ -87,7 +87,7 @@ jobs:
       REGISTRY_PW: ${{ secrets.REGISTRY_PW }}
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       NAME: book_catalog
-      DIRECTORY: book_catalog
+      DIRECTORY: part4\ 2/book_catalog
 
     steps:
       # Checkout code
@@ -120,7 +120,7 @@ jobs:
       REGISTRY_PW: ${{ secrets.REGISTRY_PW }}
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       NAME: inventory_management
-      DIRECTORY: inventory_management
+      DIRECTORY: part4\ 2/inventory_management
 
     steps:
       # Checkout code
