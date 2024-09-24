@@ -96,16 +96,16 @@ jobs:
       # Set executable permissions for all scripts
       - name: Set permissions for build, push, deploy scripts
         run: |
-          chmod +x ./scripts/build-image.sh
-          chmod +x ./scripts/push-image.sh
-          chmod +x ./scripts/deploy.sh
+          chmod +x part4\ 2/scripts/build-image.sh
+          chmod +x part4\ 2/scripts/push-image.sh
+          chmod +x part4\ 2/scripts/deploy.sh
       # Build the Docker image
       - name: Build Docker image
-        run: ./scripts/build-image.sh
+        run: part4\ 2/scripts/build-image.sh
 
       # Push the Docker image to the container registry
       - name: Publish Docker image
-        run: ./scripts/push-image.sh
+        run: part4\ 2/scripts/push-image.sh
 
   # Job 3: Deploy Inventory Management Microservice
   deploy_inventory_management:
@@ -129,16 +129,16 @@ jobs:
       # Set executable permissions for all scripts
       - name: Set permissions for build, push, deploy scripts
         run: |
-          chmod +x ./scripts/build-image.sh
-          chmod +x ./scripts/push-image.sh
-          chmod +x ./scripts/deploy.sh
+          chmod +x part4\ 2/scripts/build-image.sh
+          chmod +x part4\ 2/scripts/push-image.sh
+          chmod +x part4\ 2/scripts/deploy.sh
       # Build the Docker image
       - name: Build Docker image
-        run: ./scripts/build-image.sh
+        run: part4\ 2/scripts/build-image.sh
 
       # Push the Docker image to the container registry
       - name: Publish Docker image
-        run: ./scripts/push-image.sh
+        run: part4\ 2/scripts/push-image.sh
 
       # Install Kubectl and deploy to Kubernetes
       - uses: tale/kubectl-action@v1
@@ -148,4 +148,4 @@ jobs:
 
       # Deploy to Kubernetes
       - name: Deploy to Kubernetes
-        run: ./scripts/deploy.sh
+        run: part4\ 2/scripts/deploy.sh
