@@ -57,7 +57,7 @@ jobs:
         run: |
           az role assignment create --assignee ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }} \
           --role AcrPush \
-          --scope /subscriptions/${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}/resourceGroups/vivek23/providers/Microsoft.ContainerRegistry/registries/${{ secrets.APP_NAME }}
+          --scope /subscriptions/${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}/resourceGroups/vivek24/providers/Microsoft.ContainerRegistry/registries/${{ secrets.APP_NAME }}
         env:
           AZURE_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
           AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
