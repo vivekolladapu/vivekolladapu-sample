@@ -48,7 +48,19 @@ jobs:
         run: terraform apply -auto-approve -var="app_name=${{ secrets.APP_NAME }}" -var="kubernetes_version=${{ secrets.KUBERNETES_VERSION }}" -var="subscription_id=${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}" -var="client_id=${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}" -var="client_secret=${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}" -var="tenant_id=${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
         working-directory: "part4 2/scripts/terraform"
 
-      # Capture Terraform outputs and set them as environment variables
+            # Assign AcrPush role to the Service Principal
+      - name: Assign AcrPush Role
+        run: |
+          az role assignment create --assignee ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }} \
+          --role AcrPush \
+          --scope /subscriptions/${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}/resourceGroups/vivek22/providers/Microsoft.ContainerRegistry/registries/${{ secrets.APP_NAME }}
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+          AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+          AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
+  
+      
       - name: Get Terraform Outputs
         id: terraform_outputs
         run: |
