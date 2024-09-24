@@ -5,7 +5,7 @@ services:
   book_catalog:
     image: book_catalog:v1
     build: 
-      context: ./book_catalog
+      context: ./part4\ 2/book_catalog
       dockerfile: Dockerfile
     container_name: book_catalog
     environment:
@@ -16,7 +16,7 @@ services:
   inventory_management:
     image: inventory_management:v1
     build: 
-      context: ./inventory_management
+      context: ./part4\ 2/inventory_management
       dockerfile: Dockerfile
     container_name: inventory_management
     environment:
